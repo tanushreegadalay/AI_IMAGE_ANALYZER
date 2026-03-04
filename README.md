@@ -90,9 +90,17 @@ http://localhost:8501
 - Deploy on Streamlit Cloud
 - Improve UI further
 
+## Live Demo
+
+The application is deployed and accessible at:
+
+https://ai-image-analyzer-u0jp.onrender.com
+
 ---
 
 ## Author
 
 Tanushree Gadalay  
 Internship Project – 2026
+
+
