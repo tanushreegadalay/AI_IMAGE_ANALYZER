@@ -1,7 +1,7 @@
 import os
 from google import genai
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key="AIzaSyCFO0CM8PvuQ9vuTY6M0u3whujYpkPMREY")
 
 def analyze_image(image):
     response = client.models.generate_content(
