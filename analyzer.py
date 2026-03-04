@@ -1,20 +1,14 @@
-from google import genai
-from dotenv import load_dotenv
-import os
 import streamlit as st
+import google.generativeai as genai
 
-api_key = st.secrets["GEMINI_API_KEY"]
-
-load_dotenv()
-
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    http_options={"api_version": "v1beta"}
-)
+# Configure Gemini API using Streamlit secrets
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 def analyze_image(image):
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=["Analyze this image professionally.", image]
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    response = model.generate_content(
+        ["Analyze this image professionally and describe it in detail.", image]
     )
+
     return response.text
