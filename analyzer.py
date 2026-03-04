@@ -1,15 +1,17 @@
-import os
 from google import genai
+import os
 
-client = genai.Client(api_key="AIzaSyCFO0CM8PvuQ9vuTY6M0u3whujYpkPMREY")
+# DO NOT set api_version manually
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 def analyze_image(image):
     response = client.models.generate_content(
-        model="gemini-1.5-flash",   # ← changed here
+        model="gemini-1.5-flash",
         contents=[
-            "Analyze this image professionally and describe it clearly.",
+            "Analyze this image professionally and describe it in detail.",
             image
         ]
     )
-
     return response.text
