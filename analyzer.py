@@ -1,7 +1,7 @@
 import os
 import google.generativeai as genai
 
-# Configure Gemini API using Render environment variable
+# Use Render environment variable
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def analyze_image(image):
