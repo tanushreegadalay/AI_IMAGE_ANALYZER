@@ -1,14 +1,13 @@
 import os
 import google.generativeai as genai
 
-# Use Render environment variable
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def analyze_image(image):
     model = genai.GenerativeModel("gemini-1.5-flash")
 
     response = model.generate_content(
-        ["Analyze this image professionally and describe it in detail.", image]
+        ["Analyze this image professionally.", image]
     )
 
     return response.text
