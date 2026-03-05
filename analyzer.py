@@ -2,7 +2,6 @@ import os
 from io import BytesIO
 from google import genai
 import base64
-import streamlit as st
 import time
 from google.genai.errors import ClientError
 
@@ -10,11 +9,13 @@ def get_api_key():
     """Get API key from Streamlit secrets or environment variables"""
     try:
         # Try Streamlit secrets first (for deployment)
+        import streamlit as st
         return st.secrets["GEMINI_API_KEY"]
     except:
         # Fallback to environment variables (for local development)
         return os.getenv("GEMINI_API_KEY")
 
+# Initialize client with API key
 client = genai.Client(api_key=get_api_key())
 
 def analyze_image(pil_image, max_retries=3):
@@ -51,6 +52,7 @@ def analyze_image(pil_image, max_retries=3):
             if e.code == 429:  # Quota exceeded
                 if attempt < max_retries - 1:
                     wait_time = min(30 * (2 ** attempt), 300)  # Exponential backoff, max 5 minutes
+                    import streamlit as st
                     st.warning(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds... ({attempt + 1}/{max_retries})")
                     time.sleep(wait_time)
                     continue
