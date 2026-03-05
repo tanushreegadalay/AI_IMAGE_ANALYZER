@@ -6,14 +6,10 @@ import time
 from google.genai.errors import ClientError
 
 def get_api_key():
-    """Get API key from Streamlit secrets or environment variables"""
-    try:
-        # Try Streamlit secrets first (for deployment)
-        import streamlit as st
-        return st.secrets["GEMINI_API_KEY"]
-    except:
-        # Fallback to environment variables (for local development)
-        return os.getenv("GEMINI_API_KEY")
+    """Get API key from environment variables only"""
+    # For security, we only use environment variables
+    # Streamlit secrets should be set as environment variables in deployment
+    return os.getenv("GEMINI_API_KEY")
 
 def analyze_image(pil_image, max_retries=3):
     """Analyze image with quota management and error handling"""
@@ -21,7 +17,7 @@ def analyze_image(pil_image, max_retries=3):
     # Get API key
     api_key = get_api_key()
     if not api_key:
-        return "❌ **API Key Missing**\n\nNo API key found. Please:\n\n1. Set `GEMINI_API_KEY` environment variable\n2. Or add it to Streamlit secrets for deployment\n3. Get a new key from [Google AI Studio](https://aistudio.google.com/)"
+        return "❌ **API Key Missing**\n\nNo API key found. Please:\n\n1. Set `GEMINI_API_KEY` environment variable\n2. For Render deployment, add it in your app settings under Environment\n3. Get a new key from [Google AI Studio](https://aistudio.google.com/)"
 
     # Initialize client only when needed
     try:
@@ -60,8 +56,12 @@ def analyze_image(pil_image, max_retries=3):
             if e.code == 429:  # Quota exceeded
                 if attempt < max_retries - 1:
                     wait_time = min(30 * (2 ** attempt), 300)  # Exponential backoff, max 5 minutes
-                    import streamlit as st
-                    st.warning(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds... ({attempt + 1}/{max_retries})")
+                    # Import streamlit only when needed for UI feedback
+                    try:
+                        import streamlit as st
+                        st.warning(f"⚠️ API quota exceeded. Retrying in {wait_time} seconds... ({attempt + 1}/{max_retries})")
+                    except:
+                        pass  # If streamlit is not available, just wait
                     time.sleep(wait_time)
                     continue
                 else:
