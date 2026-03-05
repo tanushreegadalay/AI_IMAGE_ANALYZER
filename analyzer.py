@@ -15,11 +15,19 @@ def get_api_key():
         # Fallback to environment variables (for local development)
         return os.getenv("GEMINI_API_KEY")
 
-# Initialize client with API key
-client = genai.Client(api_key=get_api_key())
-
 def analyze_image(pil_image, max_retries=3):
     """Analyze image with quota management and error handling"""
+
+    # Get API key
+    api_key = get_api_key()
+    if not api_key:
+        return "❌ **API Key Missing**\n\nNo API key found. Please:\n\n1. Set `GEMINI_API_KEY` environment variable\n2. Or add it to Streamlit secrets for deployment\n3. Get a new key from [Google AI Studio](https://aistudio.google.com/)"
+
+    # Initialize client only when needed
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        return f"❌ **API Client Error**: {str(e)}"
 
     # Convert PIL image to bytes
     buf = BytesIO()
@@ -59,12 +67,4 @@ def analyze_image(pil_image, max_retries=3):
                 else:
                     return "❌ **API Quota Exceeded**\n\nYou've reached your free tier limit for today. Here are your options:\n\n🔄 **Wait**: Free tier resets daily at midnight UTC\n\n💳 **Upgrade**: Enable billing at [Google Cloud Console](https://console.cloud.google.com/billing)\n\n📊 **Check Usage**: Monitor at [Google AI Studio](https://aistudio.google.com/)\n\n⏰ **Retry Later**: The quota typically refreshes every 24 hours."
             elif e.code == 403:
-                return "❌ **API Key Error**\n\nYour API key appears to be invalid or expired. Please:\n\n1. Get a new key from [Google AI Studio](https://aistudio.google.com/)\n2. Update your environment variables\n3. Redeploy your app"
-            else:
-                return f"❌ **API Error**: {str(e)}"
-
-        except Exception as e:
-            return f"❌ **Unexpected Error**: {str(e)}"
-
-    return "❌ **Max retries exceeded**. Please try again later."
-
+                return "❌ **API Key Error**\n\nYour API key appears to be invalid, expired, or reported as leaked. Please:\n\n1. Get a **fresh API key** from [Google AI Studio](https://aistudio.google.com/)\n2. **Never commit API keys** to git or share them publicly\n3. Update your environment variables or redeploy\n4. Check that your Google Cloud project has billing enabled if needed"

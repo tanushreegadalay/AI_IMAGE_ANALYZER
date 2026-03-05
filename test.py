@@ -7,7 +7,19 @@ import base64
 
 load_dotenv()
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Get API key
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("❌ Error: GEMINI_API_KEY environment variable not found!")
+    print("Please set your API key in the .env file or environment variables.")
+    exit(1)
+
+# Initialize client only when API key is available
+try:
+    client = genai.Client(api_key=api_key)
+except Exception as e:
+    print(f"❌ Error initializing Gemini client: {e}")
+    exit(1)
 
 # Load image or create a test image if sample.jpg doesn't exist
 if os.path.exists("sample.jpg"):
