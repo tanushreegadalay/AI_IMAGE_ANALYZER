@@ -48,14 +48,23 @@ if uploaded_file:
         if st.button("🔍 Analyze Image"):
             with st.spinner("Analyzing... Please wait..."):
                 result = analyze_image(image)
-                st.success("✅ Analysis Complete!")
-                st.write(result)
-                st.download_button(
-                    label="📥 Download Report",
-                    data=result,
-                    file_name="image_analysis.txt",
-                    mime="text/plain"
-                )
+
+                # Check if it's an error message
+                if result.startswith("❌"):
+                    st.error("Analysis Failed")
+                    st.markdown(result)  # Display the error message with formatting
+                elif result.startswith("⚠️"):
+                    st.warning("Quota Warning")
+                    st.markdown(result)
+                else:
+                    st.success("✅ Analysis Complete!")
+                    st.write(result)
+                    st.download_button(
+                        label="📥 Download Report",
+                        data=result,
+                        file_name="image_analysis.txt",
+                        mime="text/plain"
+                    )
 
 st.markdown("---")
 st.markdown("© 2026 AI Image Analyzer | Internship Project")
