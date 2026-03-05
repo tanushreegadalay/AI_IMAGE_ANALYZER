@@ -2,8 +2,18 @@ import os
 from io import BytesIO
 from google import genai
 import base64
+import streamlit as st
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+def get_api_key():
+    """Get API key from Streamlit secrets or environment variables"""
+    try:
+        # Try Streamlit secrets first (for deployment)
+        return st.secrets["GEMINI_API_KEY"]
+    except:
+        # Fallback to environment variables (for local development)
+        return os.getenv("GEMINI_API_KEY")
+
+client = genai.Client(api_key=get_api_key())
 
 def analyze_image(pil_image):
 
