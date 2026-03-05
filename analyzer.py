@@ -1,16 +1,27 @@
-from google import genai
-import os
+import google.genai as genai
 
-# DO NOT set api_version manually
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+client = genai.Client(api_key="YOUR_API_KEY")
 
-def analyze_image(image):
+def analyze_image(image_path):
+    # Read image as bytes
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
+
     response = client.models.generate_content(
-    model="gemini-2.5-flash",  # ← use this
-    messages=[
-        {"role": "user", "content": ["Analyze this image professionally.", image]}
-    ]
-)
-    return response.text
+        model="models/gemini-2.5-flash",  # Stable model
+        content=[
+            {
+                "type": "input_text",
+                "text": "Analyze this image professionally."
+            },
+            {
+                "type": "input_image",
+                "image_bytes": image_bytes
+            }
+        ]
+    )
+
+    # Get the text result
+    result_text = response.output_text
+    return result_text
+
