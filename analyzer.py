@@ -3,7 +3,36 @@ from io import BytesIO
 from google import genai
 import base64
 import time
+import hashlib
+import json
+from pathlib import Path
 from google.genai.errors import ClientError
+
+CACHE_FILE = Path("image_cache.json")
+
+def get_cache():
+    """Load cache from file"""
+    if CACHE_FILE.exists():
+        try:
+            with open(CACHE_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_cache(cache):
+    """Save cache to file"""
+    try:
+        with open(CACHE_FILE, 'w') as f:
+            json.dump(cache, f)
+    except:
+        pass
+
+def get_image_hash(pil_image):
+    """Generate hash of image for caching"""
+    buf = BytesIO()
+    pil_image.save(buf, format="JPEG")
+    return hashlib.md5(buf.getvalue()).hexdigest()
 
 def get_api_key():
     """Get API key from environment variables only"""
@@ -12,7 +41,13 @@ def get_api_key():
     return os.getenv("GEMINI_API_KEY")
 
 def analyze_image(pil_image, max_retries=3):
-    """Analyze image with quota management and error handling"""
+    """Analyze image with quota management, error handling, and caching"""
+    
+    # Check cache first
+    image_hash = get_image_hash(pil_image)
+    cache = get_cache()
+    if image_hash in cache:
+        return f"✅ **Cached Result** (Saved API quota!)\n\n{cache[image_hash]}"
 
     # Get API key
     api_key = get_api_key()
@@ -50,6 +85,9 @@ def analyze_image(pil_image, max_retries=3):
                     )
                 ]
             )
+            # Cache the result
+            cache[image_hash] = response.text
+            save_cache(cache)
             return response.text
 
         except ClientError as e:
