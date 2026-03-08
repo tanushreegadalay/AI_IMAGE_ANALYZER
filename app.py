@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-from analyzer import analyze_image
+from analyzer import analyze_image, get_model
 
 st.set_page_config(
     page_title="AI Image Analyzer",
@@ -29,7 +29,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.sidebar.title("⚙ Settings")
-st.sidebar.info("AI Model: Gemini 2.5 Flash")
+model = get_model()
+st.sidebar.info(f"AI Model: {model}")
 st.sidebar.markdown("Developed by Tanushree Gadalay")
 
 st.title("🤖 AI-Powered Image Analyzer")
