@@ -1,0 +1,37 @@
+# Render Blueprint: AI Image Analyzer (API + Streamlit UI)
+# Deploy via Dashboard: New > Blueprint, connect repo, use this file.
+# See DEPLOY.md for full instructions.
+
+services:
+  # Backend: FastAPI
+  - type: web
+    name: ai-image-analyzer-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: AI_MODEL
+        value: gpt-4o
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CACHE_BACKEND
+        value: file
+      - key: CACHE_FILE_PATH
+        value: image_cache.json
+
+  # Frontend: Streamlit (API_URL is set from backend's RENDER_EXTERNAL_URL)
+  - type: web
+    name: ai-image-analyzer-ui
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run ui/streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: API_URL
+        fromService:
+          type: web
+          name: ai-image-analyzer-api
+          envVarKey: RENDER_EXTERNAL_URL
