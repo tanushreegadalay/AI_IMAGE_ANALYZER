@@ -1,4 +1,9 @@
-streamlit==1.32.0
+streamlit>=1.23.0
 Pillow
 litellm
 python-dotenv
+pydantic-settings
+fastapi
+uvicorn[standard]
+httpx
+pytest
